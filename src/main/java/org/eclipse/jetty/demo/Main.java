@@ -42,6 +42,7 @@ public class Main
     public static Server newServer(int port)
     {
         Server server = new Server();
+        server.setErrorHandler(new MyServerErrorHandler());
 
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);
@@ -50,15 +51,15 @@ public class Main
         ServletContextHandler contextHandler = new ServletContextHandler();
         contextHandler.setContextPath("/");
 
-        FilterHolder maxRequestSizeFilterHolder = contextHandler.addFilter(MaxRequestSizeFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        FilterHolder maxRequestSizeFilterHolder = contextHandler.addFilter(MaxRequestSizeFilter.class, "/dump/*", EnumSet.of(DispatcherType.REQUEST));
         maxRequestSizeFilterHolder.setInitParameter("maxSize", "1024");
         contextHandler.addServlet(DumpServlet.class, "/dump/*");
         contextHandler.addServlet(DumpServlet.class, "*.upload");
         contextHandler.addServlet(MaxRequestSizeErrorHandler.class, "/error/max-request-size");
 
-        ErrorPageErrorHandler errorPageErrorHandler = new ErrorPageErrorHandler();
-        errorPageErrorHandler.addErrorPage(MaxRequestSizeExceededException.class, "/error/max-request-size");
-        contextHandler.setErrorHandler(errorPageErrorHandler);
+        ErrorPageErrorHandler contextErrorHandler = new ErrorPageErrorHandler();
+        contextErrorHandler.addErrorPage(MaxRequestSizeExceededException.class, "/error/max-request-size");
+        contextHandler.setErrorHandler(contextErrorHandler);
 
         MaxRequestSizeHandler maxRequestSizeHandler = new MaxRequestSizeHandler(1024);
         maxRequestSizeHandler.addIncludePath("*.upload");

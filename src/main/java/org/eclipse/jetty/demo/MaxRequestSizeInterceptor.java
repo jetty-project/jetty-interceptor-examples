@@ -41,9 +41,19 @@ public class MaxRequestSizeInterceptor implements HttpInput.Interceptor
 
     public static void add(Request request, long maxSize)
     {
+        assertMaxRequestSize(request.getContentLengthLong(), maxSize);
+
         HttpInput httpInput = request.getHttpInput();
         httpInput.addInterceptor(new MaxRequestSizeInterceptor(maxSize));
         request.setAttribute(ATTR, true);
+    }
+
+    private static void assertMaxRequestSize(long contentLength, long maxRequestSize)
+    {
+        if (contentLength > maxRequestSize)
+        {
+            throw new MaxRequestSizeExceededException("Exceeded max request size of " + maxRequestSize);
+        }
     }
 
     public MaxRequestSizeInterceptor(long maxRequestSize)
@@ -55,10 +65,7 @@ public class MaxRequestSizeInterceptor implements HttpInput.Interceptor
     public HttpInput.Content readFrom(HttpInput.Content content)
     {
         readBytes += content.remaining();
-        if (readBytes > maxRequestSize)
-        {
-            throw new MaxRequestSizeExceededException("Exceeded max request size of " + maxRequestSize);
-        }
+        assertMaxRequestSize(readBytes, maxRequestSize);
         return content;
     }
 }

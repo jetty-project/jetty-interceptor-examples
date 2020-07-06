@@ -72,6 +72,9 @@ public class MaxRequestSizeTest
         assertThat("response.status", response.getStatus(), is(200));
     }
 
+    /**
+     * Enforced by the Filter
+     */
     @Test
     public void testPostDump() throws InterruptedException, ExecutionException, TimeoutException
     {
@@ -90,6 +93,9 @@ public class MaxRequestSizeTest
         assertThat("response.content", response.getContentAsString(), containsString("Request Size Exceeded"));
     }
 
+    /**
+     * Enforced by the Handler
+     */
     @Test
     public void testPostUpload() throws InterruptedException, ExecutionException, TimeoutException
     {
@@ -106,7 +112,7 @@ public class MaxRequestSizeTest
         dump(response);
 
         assertThat("response.status", response.getStatus(), is(400));
-        assertThat("response.content", response.getContentAsString(), containsString("Request Size Exceeded"));
+        assertThat("response.content", response.getContentAsString(), containsString("Exceeded max request size"));
     }
 
     private static void dump(ContentResponse response)
