@@ -26,6 +26,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -47,6 +48,9 @@ public class Main
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);
         server.addConnector(connector);
+
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setInflateBufferSize(512); // set to non-zero value to allow inflation of request buffers.
 
         ServletContextHandler contextHandler = new ServletContextHandler();
         contextHandler.setContextPath("/");
@@ -70,7 +74,9 @@ public class Main
         handlers.addHandler(contextHandler);
         handlers.addHandler(new DefaultHandler());
 
-        server.setHandler(handlers);
+        gzipHandler.setHandler(handlers);
+
+        server.setHandler(gzipHandler);
         return server;
     }
 }

@@ -64,8 +64,11 @@ public class MaxRequestSizeInterceptor implements HttpInput.Interceptor
     @Override
     public HttpInput.Content readFrom(HttpInput.Content content)
     {
-        readBytes += content.remaining();
-        assertMaxRequestSize(readBytes, maxRequestSize);
+        if (content != null)
+        {
+            readBytes += content.remaining();
+            assertMaxRequestSize(readBytes, maxRequestSize);
+        }
         return content;
     }
 }
